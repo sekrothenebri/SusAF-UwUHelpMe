@@ -1,0 +1,1 @@
+add kill to help.js
