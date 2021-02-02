@@ -1,8 +1,36 @@
+// const \\
 const { Client, MessageEmbed } = require('discord.js');
 const config = require('./config');
 const commands = require('./help');
-require('./server'); 
+require('sequelize');
+require('sqlite3')
+const Sequelize = require('sequelize');
+// require(''); \\
+require('./server');
+// Database.Sequelize \\
+const sequelize = new Sequelize('database', 'user', 'password', {
+	host: 'localhost',
+	dialect: 'sqlite',
+	logging: false,
+	// SQLite only
+	storage: 'database.sqlite',
+});
+// Database.Tags \\
+const Tags = sequelize.define('tags', {
+	name: {
+		type: Sequelize.STRING,
+		unique: true,
+	},
+	description: Sequelize.TEXT,
+	username: Sequelize.STRING,
+	usage_count: {
+		type: Sequelize.INTEGER,
+		defaultValue: 0,
+		allowNull: false,
+	},
+});
 
+// bot \\
 let bot = new Client({
   presence: {
     status: 'online',
@@ -13,7 +41,13 @@ let bot = new Client({
   }
 });
 
-bot.on('ready', () => console.log(`Logged in as ${bot.user.tag}.`));
+// <database> var pointBalSchema = import('./models/points')
+// <database> var pointBalSchema = require('./models/points')
+
+bot.on('ready', () => 
+   console.log(`Logged in as ${bot.user.tag}.`));
+   Tags.sync();
+
 
 bot.on('message', async message => {
   // Check for command
@@ -27,6 +61,51 @@ bot.on('message', async message => {
         var user1 = message.mentions.users.first();
           message.channel.send(`${user1} was the imposter.`)
           break;
+
+/*      case 'setup':
+        
+        var user = message.author.id
+       // if (dataActive != "Yes") {
+        message.channel.send("Your data is being created... Please wait.")
+      const tag = await Tags.create({
+		  name: 'Omega',
+		  value: 1,
+		  username: message.author.id,
+	});
+         
+        message.channel.send(`Your data was created! +1 Omega Point. NEW BAL::${tag.name}::${tag.value}`);
+        break;
+     //   }
+       // else {
+    //      message.channel.send("Huh? Your account is already setup. Use %data to see your data.")
+        //break;
+      //  }
+
+      case 'data':
+        var user = message.author.id
+
+        //console.log(dataActive)
+        /* const tag = await Tags.findOne({ where: { name: tagName } });
+       if (tag) {
+	// equivalent to: UPDATE tags SET usage_count = usage_count + 1 WHERE name = 'tagName';
+          tag.increment('name')
+        	tag.increment('value');
+        	return message.channel.send(tag.get('description'));
+        }
+return message.reply(`Could not find tag: ${tagName}`);
+
+          message.channel.send(`Hello, <@${user}>. The stored data is:`)
+          message.channel.send(`Points:: ${dataPoints}`)
+          break;
+      
+       // }
+        //else {
+        //  message.channel.send("Error: You have not run !setup yet.")
+        //  message.channel.send(`${dataActive}`)
+        //  break;
+        //}
+        */
+
       case 'flatearth':
       message.channel.send('No you fricking idiot! Why are there members across the globe!?')
       break;
@@ -42,22 +121,26 @@ bot.on('message', async message => {
         console.log('A message was sent to the log.')
 
         break;
-      case 'ping':
+      case 'install-Slash':
+      message.reply('Installing...')
+      message.reply('Installed. (0 slash command has been installed.)')
+      break;
+        case 'ping':
 
         let msg = await message.reply('Pinging...');
         await msg.edit(`PONG! Message round-trip took ${Date.now() - msg.createdTimestamp}ms.`)
-        print("'ping' was used.")
+        console.log("'ping' was used.")
         break;
       case '':
         message.channel.send('Uhh... The command is?')
         break;
-      // case 'kill':
-      //  message.delete({ timeout: 5})
-  // .then(msg => console.log(`Deleted message from ${msg.author.username}`))
-  //.catch(console.error);
-    //    var user = message.mentions.users.first();
-      //    console.log('Someone was killed!')
-        //  message.channel.send(`<@${user.id}> was killed! Use %report to report the body!`)
+       case 'kill':
+        message.delete({ timeout: 5})
+   .then(msg => console.log(`Deleted message from ${msg.author.username}`))
+.catch(console.error);
+   var user = message.mentions.users.first();
+        console.log('Someone was killed!')
+          message.channel.send(`<@${user.id}> was killed! Use %report to report the body!`)
         break;
       case 'report':
         console.log('A body was reported!')
@@ -81,7 +164,7 @@ bot.on('message', async message => {
       // killVar
         
       
-      case 'kill':
+      /* case 'kill':
         message.delete({ timeout: 5})
   .then(msg => console.log(`Deleted message from ${msg.author.username}`))
   .catch(console.error);
@@ -94,6 +177,7 @@ bot.on('message', async message => {
                    // var killed = Math.Add()
           console.log(`${killed}`)
         break;
+        */
       // Custom CMDS
       case 'say':
       case 'repeat':
@@ -115,7 +199,7 @@ bot.on('message', async message => {
 
       case 'test':
         message.channel.send('testingComplete')
-        print('Bot was tested: GOOD')
+        console.log('Bot was tested: GOOD')
         break;
       case '383078513583849474':
         message.channel.send('Mom of Two da best')
@@ -165,5 +249,5 @@ bot.on('message', async message => {
     }
   }
 });
-
+// bot login \\
 bot.login(config.token);
